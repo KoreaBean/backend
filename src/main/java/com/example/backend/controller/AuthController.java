@@ -1,6 +1,8 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.request.auth.SignInRequestDto;
 import com.example.backend.dto.request.auth.SignUpRequestDto;
+import com.example.backend.dto.response.auth.SignInResponseDto;
 import com.example.backend.dto.response.auth.SignUpResponseDto;
 import com.example.backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -22,8 +24,12 @@ public class AuthController {
         return response;
     }
 
-    @GetMapping("/home")
-    public String test(){
-        return "helow";
+    @PostMapping("/sign-in")
+    public ResponseEntity<? super SignInResponseDto> signIn(
+            @RequestBody @Valid SignInRequestDto requestBody
+            ){
+        ResponseEntity<? super SignInResponseDto> response = authService.SignIn(requestBody);
+        return response;
+
     }
 }
