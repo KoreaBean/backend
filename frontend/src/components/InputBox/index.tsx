@@ -3,7 +3,7 @@ import './style.css';
 
 interface Props {
 
-  label : string,
+  label : string;
   type : 'text' | 'password';
   placeholder : string;
   value : string;

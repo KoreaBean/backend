@@ -1,6 +1,6 @@
 import React from 'react'
 import 'components/Top3item/style.css';
-import defualtImage from 'assets/image/testImage.png';
+import defualtImage from '../../kakaoTalk/kakaoTalk/front/src/assets/images/testImage.png';
 import { BoardListItem } from 'types/interface';
 import { useNavigate } from 'react-router-dom';
 

@@ -35,12 +35,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String email = jwtProvider.validate(token);
 
             if (email == null) {
+                filterChain.doFilter(request,response);
                 return;
             }
 
             // 1. 첫번쨰는 아이디 2. 두번쨰는 password, 3번쨰는 권한
             AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.NO_AUTHORITIES);
-
             // 웹인증 세부정보 소스
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // authorization의 시작이 Bearer 가 아니면 null 반환
         boolean isBearer = authorization.startsWith("Bearer ");
 
-        if (isBearer) return null;
+        if (!isBearer) return null;
         // 최종적으로 다 통과하면 7번째부터 토큰 회수
         String token = authorization.substring(7);
 

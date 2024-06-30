@@ -3,7 +3,7 @@ import './style.css';
 import { url } from 'inspector';
 import { useNavigate } from 'react-router-dom';
 
-import defaultProfileImage from 'assets/image/testImage.png'
+import defaultProfileImage from '../../kakaoTalk/kakaoTalk/front/src/assets/images/testImage.png'
 import {BoardListItem} from "../../types/interface";
 
 interface Props {

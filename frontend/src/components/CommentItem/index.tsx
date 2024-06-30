@@ -1,7 +1,7 @@
 import React from 'react'
 import './style.css'
 import { CommnetListItem } from 'types/interface'
-import defaultImage from 'assets/image/testImage.png'
+import defaultImage from '../../kakaoTalk/kakaoTalk/front/src/assets/images/testImage.png'
 interface Props {
   commentList : CommnetListItem
 }

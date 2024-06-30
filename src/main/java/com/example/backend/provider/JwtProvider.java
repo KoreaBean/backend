@@ -56,6 +56,7 @@ public class JwtProvider {
             return null;
         }
         // 예외가 발생하지 않았다면  토큰의 주체를 리턴 (email)
+        System.out.println("JWTProvider : " + claims.getSubject());
         return claims.getSubject();
     }
 }

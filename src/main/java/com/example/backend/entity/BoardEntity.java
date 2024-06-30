@@ -23,4 +23,16 @@ public class BoardEntity {
     private int viewCount;
     private String writerEmail;
 
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
+    public void increaseFavoriteCount() {
+        this.favoriteCount++;
+    }
+
+    public void decreaseFavoriteCount() {
+        this.favoriteCount--;
+    }
+
 }

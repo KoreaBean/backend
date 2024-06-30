@@ -28,25 +28,12 @@ public class WebSecurityConfig {
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception{
 
 
-//        httpSecurity.cors().and()
-//                .csrf().disable()
-//                .httpBasic().disable()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-//                .authorizeHttpRequests(request -> request
-//                        .requestMatchers(HttpMethod.OPTIONS,"/api/v1/auth/**","/api/v1/search/**","/file/**")
-//                        .permitAll()
-//                        .requestMatchers(HttpMethod.GET,"/api/v1/board/**")
-//                        .permitAll()
-//                        .anyRequest()
-//                        .authenticated());
-
-
         httpSecurity.cors(CorsConfigurer::and)
                         .csrf(CsrfConfigurer::disable)
                                 .httpBasic(HttpBasicConfigurer::disable)
                                         .sessionManagement(SessionManagementConfigurer -> SessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.authorizeHttpRequests(request -> request
-                .requestMatchers("/","/api/v1/auth/**").permitAll()
+                .requestMatchers("/","/api/v1/auth/**","/api/v1/user/**","/api/v1/board/**","avi/v1/user").permitAll()
                 .anyRequest().authenticated());
 
 
