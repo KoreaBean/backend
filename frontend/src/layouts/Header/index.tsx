@@ -5,6 +5,10 @@ import { AUTH_PATH, BOARD_DETAIL_PATH, BOARD_PATH, BOARD_UPDATE_PATH, BOARD_WRIT
 import { useBoardStore, useLoginUserStore } from 'stores'
 import path from 'path'
 import {useCookies} from "react-cookie";
+import {fileUploadRequest, postBoardRequest} from "../../apis";
+import {PostBoardRequestDto} from "../../apis/request/board";
+import {PostBoardResponseDto} from "../../apis/response/board";
+import ResponseDto from "../../apis/response/response.dto";
 
 //          component : 헤더 컴포넌트         //
 export default function Header() {
@@ -12,12 +16,13 @@ export default function Header() {
 //          state : Login User 상태
 
 const {loginUser, setLoginUser, resetLoginUser} =useLoginUserStore();
+const {resetBoard} = useBoardStore();
 
 //          state : path 상태           //
 const {pathname} = useLocation();
 
 //          state: cookie 상태            //
-const [cookie, setCookie] = useCookies();
+const [cookies, setCookies] = useCookies();
 
 //          state : 로그인 상태         //
 const [isLogin, setLogin] = useState<boolean>(false);
@@ -96,6 +101,10 @@ const SearchButton = () => {
     }
   },[searchWord]);
 
+  useEffect(() => {
+    setLogin(true)
+  },[loginUser])
+
   if(!status){
     return(
       <div className='icon-button' onClick={onSearchButtonClickHandler}>
@@ -152,6 +161,36 @@ const LoginMyPageButton = () => {
 
 }
 
+//          function : post board response 처리 함수
+  const postBoardResponse = (responseBody : PostBoardResponseDto | ResponseDto | null) => {
+    if (!responseBody) return;
+
+    const {code} = responseBody
+
+    if (code === "AF" || code === "NU"){
+      navigate(AUTH_PATH())
+      return;
+    }
+    if (code === "VF"){
+      alert("제목과 내용은 필수입니다.")
+    }
+    if (code === "DBE"){
+      alert("데이터베이스 오류입니다.")
+    }
+    if (code !== "SU"){
+      return;
+    }
+    resetBoard();
+
+    if (!loginUser){
+      return;
+    }
+    const {email} = loginUser
+    navigate(USER_PATH(email))
+
+  }
+
+
 //          component : 업로드 버튼 컴포넌트          //
 
   const UploadButton = () => {
@@ -160,12 +199,30 @@ const LoginMyPageButton = () => {
     const {title, content, boardImageFileList, resetBoard} = useBoardStore();
 
     //          event handler : 업로드 버튼 클릭 이벤트 함수 처리         //
+    const onUploadButtonClickHandler = async () => {
+      const accessToken = cookies.accessToken;
+      if (!accessToken) return;
 
-    //          render : 업로드 불가 버튼 렌더링         //
-    if(title && content)
-    return <div className='black-button'>{'업로드'}</div>
-    
+      const boardImageList : string[] = [];
+      // foreach는 동기 작업이 안돼서 for 문 사용
+      for (const file of boardImageList){
+        const data= new FormData()
+        data.append('file',file)
+
+        const url = await fileUploadRequest(data);
+        if (url) boardImageList.push(url);
+      }
+      const requestBody : PostBoardRequestDto = {
+        title, content, boardImageList
+      }
+      postBoardRequest(requestBody,accessToken).then(postBoardResponse)
+
+    }
     //          render : 업로드 버튼 렌더링         //
+    if(title && content)
+    return <div className='black-button' onClick={onUploadButtonClickHandler}>{'업로드'}</div>
+    
+    //          render : 업로드 불가 버튼 렌더링         //
     return <div className='disable-button' >{'업로드'}</div>
   }
 

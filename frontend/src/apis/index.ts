@@ -2,10 +2,10 @@ import {SignInRequestDto, SignUpRequestDto} from "./request/auth";
 import axios from "axios";
 import {SignInResponseDto, SignUpResponseDto} from "./response/auth";
 import {ResponseDto} from "./response";
-import {GetCommentListResponseDto} from "./response/board";
-import {networkInterfaces} from "os";
-import responseDto from "./response/response.dto";
+
 import {GetSignInUserResponseDto} from "./response/user";
+import {PostBoardRequestDto} from "./request/board";
+import {PostBoardResponseDto} from "./response/board";
 
 const DOMAIN = 'http://localhost:8080';
 
@@ -36,7 +36,7 @@ const authorization = (accessToken : string) => {
 //     return result ;
 //
 // }
-
+//
 // export const getCommentListRequest = async (boardNumber : string | number) => {
 //     const result = await  axios.get(GET_COMMENT_LIST_URL(boardNumber))
 //         .then(response => {
@@ -79,6 +79,7 @@ export const signUnRequest = async (requestBody: SignUpRequestDto) => {
     return result
 }
 
+
 const GET_SIGN_IN_USER_URL = () => `${API_DOMAIN}/user`;
 
 export const getSignInUserRequest = async (accessToken : string) => {
@@ -91,5 +92,39 @@ export const getSignInUserRequest = async (accessToken : string) => {
             const responseBody : ResponseDto = error.response.data;
             return responseBody;
         })
+    return result;
 }
 
+//                  파일 업로드 부분
+const FILE_DOMAIN = `${DOMAIN}/file`
+
+const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`
+const multipartFormData = { headers: { 'Content-Type' : `multipart/form-data`}}
+
+export const fileUploadRequest = async (data : FormData) => {
+    const result = await axios.post(FILE_UPLOAD_URL(),data,multipartFormData)
+        .then(response => {
+            const responseBody : string = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            return null;
+        })
+    return result;
+}
+
+const POST_BOARD_URL = () => `${API_DOMAIN}/board`
+
+export const postBoardRequest = async (requestBody : PostBoardRequestDto, accessToken : string) => {
+    const result = await axios.post(POST_BOARD_URL(), requestBody,authorization(accessToken))
+        .then(response => {
+            const responseBody : PostBoardResponseDto = response.data;
+            return responseBody
+        })
+        .catch(error => {
+            if (!error.response) return null;
+            const responseBody : ResponseDto = error.response._requestData;
+            return responseBody;
+        })
+    return result;
+}

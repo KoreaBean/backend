@@ -13,6 +13,8 @@ import {text} from "stream/consumers";
 import {Address, useDaumPostcodePopup} from "react-daum-postcode";
 import signUpRequestDto from "../../apis/request/auth/sign-up.request.dto";
 import responseDto from "../../apis/response/response.dto";
+import {useLoginUserStore} from "../../stores";
+import {User} from "../../types/interface";
 
 
 //          component : 인증 화면 컴포넌트        //
@@ -26,6 +28,8 @@ export default function Authentication() {
 
   //          function : navigator 함수
   const navigator = useNavigate();
+
+  const {setLoginUser} = useLoginUserStore();
 
 
 
@@ -117,7 +121,7 @@ export default function Authentication() {
       const {token, expirationTime} = responseBody as SignInResponseDto;
       const now = new Date().getTime();
       const expires = new Date(now + expirationTime * 1000);
-      setCookies('acceessToken', token,{expires, path:MAIN_PATH()})
+      setCookies('accessToken', token,{expires, path:MAIN_PATH()})
       navigator(MAIN_PATH())
     }
 
