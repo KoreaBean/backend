@@ -91,8 +91,11 @@ export default function BoardWrite() {
     //                  effect : 첫 마운트 시 실행될 함수                 //
     useEffect(() => {
         const accessToken = cookies.accessToken;
-        if (!accessToken) return;
-        navigator(MAIN_PATH());
+        if (!accessToken){
+            navigator(MAIN_PATH());
+            return;
+        }
+
         resetBoard();
     }, [])
 

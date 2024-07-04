@@ -1,9 +1,12 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.request.board.PostBoardRequestDto;
 import com.example.backend.dto.response.board.GetLatestBoardListResponseDto;
 import com.example.backend.dto.response.board.GetUserBoardListResponseDto;
+import com.example.backend.dto.response.board.PostBoardResponseDto;
 import com.example.backend.dto.response.board.PutFavoriteResponseDto;
 import com.example.backend.service.BoardService;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,15 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+
+
+    @PostMapping("")
+    public ResponseEntity<? super PostBoardResponseDto>postBoard
+            (@RequestBody @Valid PostBoardRequestDto dto, @AuthenticationPrincipal String email)
+    {
+        ResponseEntity<? super PostBoardResponseDto> response = boardService.postBoard(dto, email);
+        return response;
+    }
 
     @GetMapping("/user-boardlist/{email}")
     public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(@PathVariable("email") String email) {

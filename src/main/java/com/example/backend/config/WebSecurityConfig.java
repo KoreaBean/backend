@@ -33,7 +33,7 @@ public class WebSecurityConfig {
                                 .httpBasic(HttpBasicConfigurer::disable)
                                         .sessionManagement(SessionManagementConfigurer -> SessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.authorizeHttpRequests(request -> request
-                .requestMatchers("/","/api/v1/auth/**","/api/v1/user/**","/api/v1/board/**","avi/v1/user").permitAll()
+                .requestMatchers("/*","/api/v1/auth/**","/api/v1/user/**","/api/v1/board/**","avi/v1/user","/file/*").permitAll()
                 .anyRequest().authenticated());
 
 

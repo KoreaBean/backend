@@ -102,8 +102,10 @@ const SearchButton = () => {
   },[searchWord]);
 
   useEffect(() => {
-    setLogin(true)
-  },[loginUser])
+    if (cookies.accessToken) setLogin(true)
+    else setLogin(false)
+  },[cookies])
+
 
   if(!status){
     return(

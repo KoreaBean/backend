@@ -1,16 +1,16 @@
 package com.example.backend.service.implement;
 
+import com.example.backend.dto.request.board.PostBoardRequestDto;
 import com.example.backend.dto.response.ResponseDto;
 import com.example.backend.dto.response.board.GetLatestBoardListResponseDto;
 import com.example.backend.dto.response.board.GetUserBoardListResponseDto;
+import com.example.backend.dto.response.board.PostBoardResponseDto;
 import com.example.backend.dto.response.board.PutFavoriteResponseDto;
 import com.example.backend.entity.BoardEntity;
 import com.example.backend.entity.BoardListViewEntity;
 import com.example.backend.entity.FavoriteEntity;
-import com.example.backend.repository.BoardListViewRepository;
-import com.example.backend.repository.BoardRepository;
-import com.example.backend.repository.FavoriteRepository;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.entity.ImageEntity;
+import com.example.backend.repository.*;
 import com.example.backend.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +25,39 @@ public class BoardServiceImpl implements BoardService {
 
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final ImageRepository imageRepository;
     private final BoardListViewRepository boardListViewRepository;
     private final FavoriteRepository favoriteRepository;
+
+    @Override
+    public ResponseEntity<? super PostBoardResponseDto> postBoard(PostBoardRequestDto dto, String email) {
+
+        try {
+
+            boolean existedEmail = userRepository.existsByEmail(email);
+            if (!existedEmail) return PostBoardResponseDto.notExistUser();
+
+            BoardEntity boardEntity = new BoardEntity(dto, email);
+            boardRepository.save(boardEntity);
+
+            int boardNumber = boardEntity.getBoardNumber();
+
+            List<String> boardImageList = dto.getBoardImageList();
+            List<ImageEntity> imageEntities = new ArrayList<>();
+
+            for (String image : boardImageList) {
+                ImageEntity imageEntity = new ImageEntity(boardNumber, image);
+                imageEntities.add(imageEntity);
+            }
+            imageRepository.saveAll(imageEntities);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return PostBoardResponseDto.success();
+    }
 
     @Override
     public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email) {
