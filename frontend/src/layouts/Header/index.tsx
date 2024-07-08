@@ -16,7 +16,7 @@ export default function Header() {
 //          state : Login User 상태
 
 const {loginUser, setLoginUser, resetLoginUser} =useLoginUserStore();
-const {resetBoard} = useBoardStore();
+const {boardImageFileList ,resetBoard} = useBoardStore();
 
 //          state : path 상태           //
 const {pathname} = useLocation();
@@ -80,8 +80,6 @@ const SearchButton = () => {
 
   //          event handler : 검색어 키 이벤트 처리 함수          //
   const onSearchWordKeyDownHandler = (event : KeyboardEvent<HTMLInputElement>) => {
-    console.log(event);
-    console.log(searchButtonRef);
     if(event.key !== 'Enter') return;
     if(!searchButtonRef.current) return;
     searchButtonRef.current.click();
@@ -202,13 +200,23 @@ const LoginMyPageButton = () => {
 
     //          event handler : 업로드 버튼 클릭 이벤트 함수 처리         //
     const onUploadButtonClickHandler = async () => {
+      // JWT 쿠키
       const accessToken = cookies.accessToken;
-      if (!accessToken) return;
-
+      // JWT 쿠키가 없다면
+      if (!accessToken){
+        alert("로그인 후 다시 시도해주세요.")
+        return;
+      }
+      //String 배열의 객체 생성
       const boardImageList : string[] = [];
       // foreach는 동기 작업이 안돼서 for 문 사용
-      for (const file of boardImageList){
+      // 전역 boardImageFIleLIst 에서 file을 하나씩 가져오기
+      for (const file of boardImageFileList){
+        // FomData 객체 생성
+        // FomData 란 Http 요청을 통해 서버로 전송 될 때 'multipart/form-data' 형식으로 인코딩
         const data= new FormData()
+        // FomData 에 append 하는데 key 값은 'file' 이고 value 값은 file
+
         data.append('file',file)
 
         const url = await fileUploadRequest(data);
@@ -218,7 +226,6 @@ const LoginMyPageButton = () => {
         title, content, boardImageList
       }
       postBoardRequest(requestBody,accessToken).then(postBoardResponse)
-
     }
     //          render : 업로드 버튼 렌더링         //
     if(title && content)

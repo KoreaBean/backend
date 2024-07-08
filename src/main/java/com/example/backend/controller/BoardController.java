@@ -1,14 +1,13 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.request.board.PostBoardRequestDto;
-import com.example.backend.dto.response.board.GetLatestBoardListResponseDto;
-import com.example.backend.dto.response.board.GetUserBoardListResponseDto;
-import com.example.backend.dto.response.board.PostBoardResponseDto;
-import com.example.backend.dto.response.board.PutFavoriteResponseDto;
+import com.example.backend.dto.request.board.PostCommentRequestDto;
+import com.example.backend.dto.response.board.*;
 import com.example.backend.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -43,11 +42,35 @@ public class BoardController {
         return response;
     }
 
-    @PutMapping("/{boardNUmber}/favorite")
+    @GetMapping("/{boardNumber}")
+    public ResponseEntity<? super GetBoardResponseDto>getBoard(@PathVariable("boardNumber")Integer boardNumber){
+        ResponseEntity response = boardService.getBoard(boardNumber);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+    @PutMapping("/{boardNumber}/favorite")
     public ResponseEntity<? super PutFavoriteResponseDto> putFavorite(
             @PathVariable("boardNumber") int boardNUmber, @AuthenticationPrincipal String email)
     {
         ResponseEntity<? super PutFavoriteResponseDto> response = boardService.putFavorite(boardNUmber, email);
         return response;
     }
+    // 좋아요 리스트
+    @GetMapping("/{boardNumber}/favorite-list")
+    public ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(@PathVariable("boardNumber")Integer boardNumber){
+        ResponseEntity<? super GetFavoriteListResponseDto> response = boardService.getFavoriteList(boardNumber);
+        return response;
+    }
+
+    // 댓글 작성
+    @PostMapping("/{boardNumber}/comment")
+    ResponseEntity<? super PostCommentResponseDto> postComment(@PathVariable("boardNumber")Integer boardNumber,@RequestBody@Valid PostCommentRequestDto dto, @AuthenticationPrincipal String email){
+
+        ResponseEntity<? super PostCommentResponseDto> response = boardService.postComment(dto, boardNumber, email);
+        return response;
+    }
+
+    // 댓글 리스트
+
 }

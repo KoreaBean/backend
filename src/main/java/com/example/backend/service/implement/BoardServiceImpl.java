@@ -1,16 +1,13 @@
 package com.example.backend.service.implement;
 
 import com.example.backend.dto.request.board.PostBoardRequestDto;
+import com.example.backend.dto.request.board.PostCommentRequestDto;
 import com.example.backend.dto.response.ResponseDto;
-import com.example.backend.dto.response.board.GetLatestBoardListResponseDto;
-import com.example.backend.dto.response.board.GetUserBoardListResponseDto;
-import com.example.backend.dto.response.board.PostBoardResponseDto;
-import com.example.backend.dto.response.board.PutFavoriteResponseDto;
-import com.example.backend.entity.BoardEntity;
-import com.example.backend.entity.BoardListViewEntity;
-import com.example.backend.entity.FavoriteEntity;
-import com.example.backend.entity.ImageEntity;
+import com.example.backend.dto.response.board.*;
+import com.example.backend.entity.*;
 import com.example.backend.repository.*;
+import com.example.backend.repository.resultSet.GetBoardResultSet;
+import com.example.backend.repository.resultSet.GetFavoriteListResultSet;
 import com.example.backend.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +25,30 @@ public class BoardServiceImpl implements BoardService {
     private final ImageRepository imageRepository;
     private final BoardListViewRepository boardListViewRepository;
     private final FavoriteRepository favoriteRepository;
+    private final CommentRepository commentRepository;
+
+    @Override
+    public ResponseEntity<? super GetBoardResponseDto> getBoard(Integer boardNumber) {
+
+        GetBoardResultSet resultSet = null;
+        List<ImageEntity> imageEntities = new ArrayList<>();
+        try {
+            resultSet = boardRepository.getBoard(boardNumber);
+
+            if (resultSet == null) return GetBoardResponseDto.noExistBoard();
+            imageEntities = imageRepository.findByBoardNumber(boardNumber);
+
+            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
+            boardEntity.increaseViewCount();
+            boardRepository.save(boardEntity);
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return GetBoardResponseDto.success(resultSet, imageEntities);
+    }
 
     @Override
     public ResponseEntity<? super PostBoardResponseDto> postBoard(PostBoardRequestDto dto, String email) {
@@ -57,6 +78,27 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return PostBoardResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber,String email) {
+
+        try {
+            // 1. 유저가 존재하는 유저인지
+            boolean existedUser = userRepository.existsByEmail(email);
+            if (!existedUser) return PostCommentResponseDto.noExistUser();
+            // 2. 게시판이 존재하는 게시판인지
+            boolean existedBoard = boardRepository.existsByBoardNumber(boardNumber);
+            if (!existedBoard) return PostCommentResponseDto.noExistBoard();
+            // 3. comment DB에 등록
+            CommentEntity commentEntity = new CommentEntity(dto.getComment(), email, boardNumber);
+            commentRepository.save(commentEntity);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return  PostCommentResponseDto.databaseError();
+        }
+        return PostCommentResponseDto.success();
     }
 
     @Override
@@ -103,6 +145,7 @@ public class BoardServiceImpl implements BoardService {
 
             boolean existedUser = userRepository.existsByEmail(email);
             if (!existedUser) return PutFavoriteResponseDto.noExistUser();
+
             BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
             if (boardEntity == null) return PutFavoriteResponseDto.noExistBoard();
 
@@ -126,4 +169,27 @@ public class BoardServiceImpl implements BoardService {
         }
         return PutFavoriteResponseDto.success();
     }
+
+    @Override
+    public ResponseEntity<? super GetFavoriteListResponseDto> getFavoriteList(Integer boardNumber) {
+        List<GetFavoriteListResultSet> list = new ArrayList<>();
+        try {
+
+            boolean existBoard = boardRepository.existsByBoardNumber(boardNumber);
+            if (!existBoard) return GetFavoriteListResponseDto.noExistBoard();
+            list = favoriteRepository.getFavoriteList(boardNumber);
+            if (list == null) return GetFavoriteListResponseDto.noExistUser();
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            ResponseDto.databaseError();
+        }
+
+        return GetFavoriteListResponseDto.success(list);
+    }
+
+
+
+
 }

@@ -102,13 +102,16 @@ const FILE_UPLOAD_URL = () => `${FILE_DOMAIN}/upload`
 const multipartFormData = { headers: { 'Content-Type' : `multipart/form-data`}}
 
 export const fileUploadRequest = async (data : FormData) => {
+    console.log("fileUpLoadRequest : TEST")
     const result = await axios.post(FILE_UPLOAD_URL(),data,multipartFormData)
         .then(response => {
             const responseBody : string = response.data;
+            console.log("fileUpLoadRequest Response : " + response.data)
             return responseBody;
         })
         .catch(error => {
-            return null;
+            console.log("fileUpLoadRequest error : " + error.response.data)
+            return error.response.data;
         })
     return result;
 }
