@@ -1,5 +1,6 @@
 package com.example.backend.service.implement;
 
+import com.example.backend.dto.object.CommentListItem;
 import com.example.backend.dto.request.board.PostBoardRequestDto;
 import com.example.backend.dto.request.board.PostCommentRequestDto;
 import com.example.backend.dto.response.ResponseDto;
@@ -7,6 +8,7 @@ import com.example.backend.dto.response.board.*;
 import com.example.backend.entity.*;
 import com.example.backend.repository.*;
 import com.example.backend.repository.resultSet.GetBoardResultSet;
+import com.example.backend.repository.resultSet.GetCommentListResultSet;
 import com.example.backend.repository.resultSet.GetFavoriteListResultSet;
 import com.example.backend.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +82,7 @@ public class BoardServiceImpl implements BoardService {
         return PostBoardResponseDto.success();
     }
 
+    // 댓글 작성
     @Override
     public ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber,String email) {
 
@@ -88,8 +91,12 @@ public class BoardServiceImpl implements BoardService {
             boolean existedUser = userRepository.existsByEmail(email);
             if (!existedUser) return PostCommentResponseDto.noExistUser();
             // 2. 게시판이 존재하는 게시판인지
-            boolean existedBoard = boardRepository.existsByBoardNumber(boardNumber);
-            if (!existedBoard) return PostCommentResponseDto.noExistBoard();
+            //boolean existedBoard = boardRepository.existsByBoardNumber(boardNumber);
+            // 3. 보드의 commentCount 증가
+            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
+            if (boardEntity == null) return PostCommentResponseDto.noExistBoard();
+            boardEntity.increaseCommentCount();
+            boardRepository.save(boardEntity);
             // 3. comment DB에 등록
             CommentEntity commentEntity = new CommentEntity(dto.getComment(), email, boardNumber);
             commentRepository.save(commentEntity);
@@ -100,6 +107,27 @@ public class BoardServiceImpl implements BoardService {
         }
         return PostCommentResponseDto.success();
     }
+
+
+    // 댓글 리스트
+    @Override
+    public ResponseEntity<? super GetCommentListResponseDto> getCommentList(Integer boardNumber) {
+        List<GetCommentListResultSet> list = new ArrayList<>();
+        try {
+
+            boolean existBoard = boardRepository.existsByBoardNumber(boardNumber);
+            if (!existBoard) return GetCommentListResponseDto.existedBoard();
+            list = commentRepository.getCommentList(boardNumber);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return GetCommentListResponseDto.success(list);
+    }
+
+
 
     @Override
     public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email) {

@@ -34,21 +34,20 @@ public class BoardController {
 
         return response;
     }
-
     @GetMapping("/latest-list")
     public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList() {
         ResponseEntity<? super GetLatestBoardListResponseDto> response = boardService.getLatestBoardList();
 
         return response;
     }
-
+    // 특정 게시물 상세보기
     @GetMapping("/{boardNumber}")
     public ResponseEntity<? super GetBoardResponseDto>getBoard(@PathVariable("boardNumber")Integer boardNumber){
         ResponseEntity response = boardService.getBoard(boardNumber);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-
+    // 특정 게시글 좋아요 
     @PutMapping("/{boardNumber}/favorite")
     public ResponseEntity<? super PutFavoriteResponseDto> putFavorite(
             @PathVariable("boardNumber") int boardNUmber, @AuthenticationPrincipal String email)
@@ -72,5 +71,10 @@ public class BoardController {
     }
 
     // 댓글 리스트
+    @GetMapping("/{boardNumber}/comment-list")
+    ResponseEntity<? super GetCommentListResponseDto>getCommentList(@PathVariable("boardNumber")Integer boarNumber){
+        ResponseEntity<? super GetCommentListResponseDto> response = boardService.getCommentList(boarNumber);
+        return  response;
+    }
 
 }

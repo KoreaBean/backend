@@ -20,4 +20,7 @@ public interface BoardService {
     //댓글 작성
     ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber, String email);
 
+    // 댓글 리스트
+    ResponseEntity<? super GetCommentListResponseDto> getCommentList (Integer boardNumber);
+
 }
