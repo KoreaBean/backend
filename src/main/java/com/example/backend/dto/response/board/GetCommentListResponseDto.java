@@ -18,13 +18,13 @@ import java.util.List;
 @Getter
 public class GetCommentListResponseDto extends ResponseDto {
 
-    List<CommentListItem> list = new ArrayList<>();
+    List<CommentListItem> commentList = new ArrayList<>();
 
 
 
     private GetCommentListResponseDto(List<GetCommentListResultSet> list) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
-        this.list = CommentListItem.copyList(list);
+        this.commentList = CommentListItem.copyList(list);
     }
 
 
