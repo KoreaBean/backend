@@ -11,6 +11,9 @@ import {useLoginUserStore} from "../../../stores";
 import {useNavigate, useParams} from "react-router-dom";
 import {AUTH_PATH, BOARD_PATH, BOARD_UPDATE_PATH, MAIN_PATH, USER_PATH} from "../../../contant";
 import {boardMock} from "../../../mocks";
+import {getBoardRequest} from "../../../apis";
+import GetBoardResponseDto from "../../../apis/response/board/get-board.response.dto";
+import ResponseDto from "../../../apis/response/response.dto";
 
   //          component 게시물 전체 컴포넌트          //
 export default function BoardDetail() {
@@ -60,11 +63,33 @@ export default function BoardDetail() {
       navigator(MAIN_PATH())
     }
 
+    //          function : get board response 처리 함수         //
+    const getBoardResponse = (responseBody : GetBoardResponseDto | ResponseDto | null) => {
+      if (!responseBody) return;
+      const {code} = responseBody
+
+      if (code === 'NB')  alert("존재하지 않는 게시물 입니다.")
+
+      if (code === "DBE") alert("데이터베이스 에러입니다.")
+
+      if (code !== "SU") {
+        alert(code)
+        navigator(MAIN_PATH())
+        return;
+      }
+      const board : Board = {...responseBody as GetBoardResponseDto}
+      setBoard(board);
+    }
+
 
     //          effect : 게시물 번호 path variable이 바뀔 때 마다 게시물 불러오기         //
     useEffect(() => {
 
-      setBoard(boardMock);
+      if (!boardNumber) {
+        navigator(MAIN_PATH());
+        return
+      }
+      getBoardRequest(boardNumber).then(getBoardResponse)
 
     },[boardNumber])
 
@@ -96,7 +121,7 @@ export default function BoardDetail() {
           <div className='divider'></div>
           <div className='board-detail-top-main'>
             <div className='board-detail-main-text'>{board.content}</div>
-            {board.boardImageList.map(item =>        <img className='board-detail-main-image' src={item} ></img>)}
+            {board.boardImageList && board.boardImageList.map(item => <img className='board-detail-main-image' src={item} ></img>)}
 
           </div>
         </div>
